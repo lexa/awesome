@@ -80,6 +80,15 @@ function keyboardlayout.new()
    capi.awesome.connect_signal("xkb::group_changed",
                                function () update_status(keyboardlayout) end);
 
+   -- restore per-client key layout, or set it to default (for freshly created clients)
+   capi.client.connect_signal("focus",
+                              function(c) if (c.keyboardlayout) then
+                                    keyboardlayout.set_layout(c.keyboardlayout);
+                                          else
+                                    keyboardlayout.set_layout(0); end end);
+   -- save client key layout
+   capi.client.connect_signal("unfocus", function(c) c.keyboardlayout = keyboardlayout.current end)
+
    -- Mouse bindings
    keyboardlayout:buttons(
       util.table.join(button({ }, 1, keyboardlayout.next_layout))
